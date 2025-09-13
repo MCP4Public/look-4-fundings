@@ -1,42 +1,41 @@
 from mcp.server.fastmcp import FastMCP
+from crawler import EUFundingCrawler
+from typing import List
+from type import PublicFunding
 
 # Create an MCP server
 mcp = FastMCP(
-    name="MCPTEST",
+    name="EU-Funding-Crawler",
     host="0.0.0.0",  # only used for SSE transport
     port=3000,  # only used for SSE transport (HF expect 7860 as a port)
     stateless_http=True,
-    debug=True
+    debug=True,
 )
 
-
-@mcp.tool()
-def invert_word(word: str) -> str:
-    """
-    Invert a word by reversing its characters.
-
-    Args:
-        word (str): The word to invert
-
-    Returns:
-        str: The inverted word
-    """
-    inverted = word[::-1]
-    return "".join(inverted)
+# Initialize the crawler
+crawler = EUFundingCrawler()
 
 
 @mcp.tool()
-def count_r_occurences_in_string(string: str) -> int:
+def search_eu_fundings(keyword="AI", page_size=20) -> List[PublicFunding]:
     """
-    Count the number of 'r' occurrences in a string.
+    Search for EU funding opportunities by keyword and return a list of funding details.
 
     Args:
-        string (str): The input string to count 'r' characters in
+        keyword (str): The search keyword (e.g., "AI", "machine learning", "renewable energy")
+        page_size (int): Number of results to return per page (default: 20)
 
     Returns:
-        int: The number of 'r' characters found in the string
+        List[PublicFunding]: A list of PublicFunding objects containing funding details like
+            title, URL, summary, deadline, status and budget. Returns empty list if no results
+            or on error.
     """
-    return string.count("r")
+    try:
+        results = crawler.get_grants_and_tenders(keyword="AI", page_size=20)
+        return results
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
 
 
 def main():
