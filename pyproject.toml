@@ -1,0 +1,10 @@
+[project]
+name = "look-4-fundings"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp[cli]>=1.14.0",
+    "ruff>=0.13.0",
+]
