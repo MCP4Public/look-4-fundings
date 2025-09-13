@@ -4,7 +4,9 @@ from mcp.server.fastmcp import FastMCP
 mcp = FastMCP(
     name="MCPTEST",
     host="0.0.0.0",  # only used for SSE transport
-    port=8000,  # only used for SSE transport (HF expect 7860 as a port)
+    port=3000,  # only used for SSE transport (HF expect 7860 as a port)
+    stateless_http=True,
+    debug=True
 )
 
 
