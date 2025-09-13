@@ -1,11 +1,12 @@
-# Look 4 Fundings - MCP Server
+# Look 4 Fundings - EU Funding Crawler MCP Server
 
-A Model Context Protocol (MCP) server that provides tools for text manipulation and analysis. This server is designed to work with Le Chat and other MCP-compatible clients.
+A Model Context Protocol (MCP) server that provides tools for searching EU funding opportunities through the official EU Funding & Tenders Portal API. This server is designed to work with Le Chat and other MCP-compatible clients.
 
 ## Features
 
-- **Text Inversion**: Reverse the characters in any word
-- **Character Counting**: Count occurrences of specific characters in strings
+- **EU Funding Search**: Search for active EU funding opportunities by keyword
+- **Comprehensive Data**: Get detailed information including title, summary, deadline, budget, and status
+- **Official API Integration**: Uses the official EU Funding & Tenders Portal REST API
 - **Le Chat Integration**: Compatible with Le Chat's MCP connector system
 
 ## Prerequisites
@@ -32,7 +33,7 @@ Run the server directly with Python:
 python main.py
 ```
 
-The server will start on `http://localhost:8000` and use the streamable-http transport for Le Chat compatibility.
+The server will start on `http://localhost:3000` and use the streamable-http transport for Le Chat compatibility.
 
 ### Method 2: Using LocalTunnel for External Access
 
@@ -50,7 +51,7 @@ python main.py
 
 3. In another terminal, expose the server using LocalTunnel:
 ```bash
-lt --port 8000
+lt --port 3000
 ```
 
 This will provide you with a public URL like `https://legal-bugs-chew.loca.lt` that you can use to connect to your MCP server.
@@ -67,35 +68,29 @@ To connect this MCP server to Le Chat:
 
 ## Available Tools
 
-### `invert_word`
-Reverses the characters in a given word.
+### `search_eu_fundings`
+Searches for EU funding opportunities by keyword and returns detailed funding information.
 
 **Parameters:**
-- `word` (str): The word to invert
+- `keyword` (str): The search keyword (e.g., "AI", "machine learning", "renewable energy") - defaults to "AI"
+- `page_size` (int): Number of results to return per page - defaults to 20
 
 **Returns:**
-- `str`: The inverted word
+- `List[PublicFunding]`: A list of PublicFunding objects containing:
+  - `title` (str): Title of the funding opportunity
+  - `url` (str): Direct link to the funding page
+  - `summary` (str): Summary/objective of the funding
+  - `deadline` (str): Application deadline
+  - `status` (str): Current status of the funding
+  - `budget` (str): Budget information with currency
 
 **Example:**
 ```
-Input: "hello"
-Output: "olleh"
+Input: keyword="artificial intelligence", page_size=10
+Output: List of 10 EU funding opportunities related to AI
 ```
 
-### `count_r_occurences_in_string`
-Counts the number of 'r' characters in a string.
-
-**Parameters:**
-- `string` (str): The input string to analyze
-
-**Returns:**
-- `int`: The number of 'r' characters found
-
-**Example:**
-```
-Input: "programming"
-Output: 2
-```
+**Note:** Returns an empty list if no results are found or if an error occurs during the API request.
 
 ## Development
 
@@ -103,12 +98,24 @@ This project uses:
 - **FastMCP**: For building the MCP server
 - **Streamable HTTP**: For Le Chat compatibility
 - **Python 3.12+**: For modern Python features
+- **Pydantic**: For data validation and serialization
+- **Requests**: For HTTP API calls to the EU Funding Portal
+- **EU Funding & Tenders Portal API**: Official REST API for funding data
+
+## Project Structure
+
+- `main.py`: MCP server setup and tool definitions
+- `crawler.py`: EUFundingCrawler class for API interactions
+- `type.py`: Pydantic models for data structures
+- `pyproject.toml`: Project dependencies and configuration
 
 ## Troubleshooting
 
-- **Port already in use**: If port 8000 is occupied, you can modify the port in `main.py` and update the LocalTunnel command accordingly
+- **Port already in use**: If port 3000 is occupied, you can modify the port in `main.py` and update the LocalTunnel command accordingly
 - **LocalTunnel issues**: Make sure LocalTunnel is installed globally and the tunnel URL is accessible
 - **Le Chat connection**: Ensure the MCP endpoint URL includes `/mcp` at the end
+- **API errors**: The crawler uses the official EU API which may have rate limits or temporary unavailability
+- **No results found**: Try different keywords or check if the API is responding correctly
 
 ## License
 
