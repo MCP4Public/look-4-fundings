@@ -70,6 +70,112 @@ def get_company_profile() -> Optional[MyCompany]:
 
 
 @mcp.tool()
+def get_grants() -> List[PublicFunding]:
+    """
+    Retrieve all grants currently listed in the Look 4 Fundings web application.
+
+    This tool fetches all the funding opportunities that have been added to the web application,
+    including their details like title, URL, summary, deadline, status, budget, and company affinity.
+
+    Returns:
+        List[PublicFunding]: A list of all PublicFunding objects currently in the application.
+            Returns empty list if no grants are found or if there's an error.
+    """
+    try:
+        with httpx.Client() as client:
+            response = client.get(
+                "https://web-production-08f4.up.railway.app/api/grants"
+            )
+            response.raise_for_status()
+
+            if response.status_code == 200:
+                data = response.json()
+                if not data:
+                    return []
+
+                # Convert the JSON data back to PublicFunding objects
+                grants = []
+                for grant_data in data:
+                    # Convert deadline string back to date object
+                    if "deadline" in grant_data and isinstance(
+                        grant_data["deadline"], str
+                    ):
+                        from datetime import datetime
+
+                        grant_data["deadline"] = datetime.fromisoformat(
+                            grant_data["deadline"]
+                        ).date()
+
+                    grant = PublicFunding(**grant_data)
+                    grants.append(grant)
+
+                print(f"DEBUG: Retrieved {len(grants)} grants from the application")
+                return grants
+            return []
+
+    except Exception as e:
+        print(f"Error retrieving grants: {e}")
+        return []
+
+
+@mcp.tool()
+def update_company_scope(new_scope: str) -> Optional[MyCompany]:
+    """
+    Update only the company scope in the Look 4 Fundings web application.
+
+    This tool fetches the current company profile, updates only the scope field,
+    and saves the updated profile back to the web application.
+
+    Args:
+        new_scope (str): The new description of the company's scope and activities
+
+    Returns:
+        Optional[MyCompany]: The updated company profile object, or None if there's an error
+    """
+    try:
+        # First, get the current company profile
+        with httpx.Client() as client:
+            get_response = client.get(
+                "https://web-production-08f4.up.railway.app/api/company"
+            )
+            get_response.raise_for_status()
+
+            if get_response.status_code == 200:
+                current_data = get_response.json()
+                if current_data is None:
+                    print("No existing company profile found. Cannot update scope.")
+                    return None
+
+                # Update only the scope while keeping name and url
+                updated_company = MyCompany(
+                    name=current_data["name"], url=current_data["url"], scope=new_scope
+                )
+
+                # Convert to dict for JSON serialization
+                company_data = updated_company.dict()
+                print(f"DEBUG: Updating company scope. Sending data: {company_data}")
+
+                # Update the company profile
+                update_response = client.post(
+                    "https://web-production-08f4.up.railway.app/api/company",
+                    json=company_data,
+                    headers={"Content-Type": "application/json"},
+                )
+                print(f"DEBUG: Update response status: {update_response.status_code}")
+                print(f"DEBUG: Update response content: {update_response.text}")
+                update_response.raise_for_status()
+
+                if update_response.status_code == 200:
+                    return updated_company
+                return None
+            return None
+
+    except Exception as e:
+        print(f"Error updating company scope: {e}")
+        return None
+
+
+@mcp.tool()
 def add_grant_with_affinity(
     funding: PublicFunding, affinity_score: float
 ) -> Optional[PublicFunding]:
@@ -101,6 +207,7 @@ def add_grant_with_affinity(
             status=funding.status,
             budget=funding.budget,
             company_affinity=affinity_score,
+            won=funding.won if hasattr(funding, "won") else False,
         )
 
         # Convert to dict for JSON serialization with proper date handling

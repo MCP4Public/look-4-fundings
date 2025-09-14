@@ -86,6 +86,7 @@ Searches for EU funding opportunities by keyword and returns detailed funding in
   - `status` (str): Current status of the funding
   - `budget` (str): Budget information with currency
   - `company_affinity` (float): Company affinity score (0-100)
+  - `won` (bool): Whether the grant was won or not (default: False)
 
 **Example:**
 ```
@@ -131,7 +132,24 @@ Input: funding=PublicFunding(...), affinity_score=85.5
 Output: PublicFunding object with company_affinity=85.5
 ```
 
-**Note:** The function validates that the affinity score is between 0 and 100. The funding object is automatically updated with the new affinity score before being posted to the web application.
+**Note:** The function validates that the affinity score is between 0 and 100. The funding object is automatically updated with the new affinity score before being posted to the web application. The `won` field is preserved from the original funding object.
+
+### `get_grants`
+Retrieves all grants currently listed in the Look 4 Fundings web application.
+
+**Parameters:**
+- None
+
+**Returns:**
+- `List[PublicFunding]`: A list of all PublicFunding objects currently in the application, including their won status
+
+**Example:**
+```
+Input: None
+Output: List of all grants with their current won status
+```
+
+**Note:** Returns an empty list if no grants are found or if there's an error. The function automatically converts date strings back to date objects for proper data handling.
 
 ## Development
 

@@ -28,6 +28,7 @@ class PublicFunding(BaseModel):
         ge=0,
         le=100,
     )
+    won: bool = Field(default=False, description="Whether the grant was won or not")
 
 
 class MyCompany(BaseModel):

@@ -89,7 +89,7 @@ class EUFundingCrawler:
 
             # Get budget with fallback to empty string
             try:
-                budget = result["metadata"].get("overallBudget", [""])[0]
+                budget = "-".join(result["metadata"].get("overallBudget", [""]))
                 budget = budget + " €" if budget else ""
             except (KeyError, IndexError):
                 budget = ""
