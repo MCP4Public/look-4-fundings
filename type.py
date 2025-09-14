@@ -22,3 +22,22 @@ class PublicFunding(BaseModel):
     deadline: date = Field(..., description="Deadline of the funding")
     status: str = Field(..., description="Status of the funding")
     budget: str = Field(..., description="Budget of the funding")
+    company_affinity: float = Field(
+        default=100,
+        description="Affinity of the company with the funding",
+        ge=0,
+        le=100,
+    )
+
+
+class MyCompany(BaseModel):
+    """
+    Represents a company.
+
+    This model contains essential information about a company,
+    including its name, URL, and application deadline.
+    """
+
+    name: str = Field(..., description="Name of the company")
+    url: str = Field(..., description="Direct link to the company original page")
+    scope: str = Field(..., description="Scope of the company")

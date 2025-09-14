@@ -79,7 +79,11 @@ class EUFundingCrawler:
             # start_date_str = result["metadata"]["startDate"]
             # Get end date with fallback to empty string
             try:
-                end_date_str = result["metadata"].get("endDate", [""])[0] if result["metadata"].get("endDate") else ""
+                end_date_str = (
+                    result["metadata"].get("endDate", [""])[0]
+                    if result["metadata"].get("endDate")
+                    else ""
+                )
             except (KeyError, IndexError):
                 end_date_str = ""
 
@@ -92,7 +96,11 @@ class EUFundingCrawler:
 
             # Get summary/objective with fallback to empty string
             try:
-                summary = result["metadata"].get("objective", [""])[0] if result["metadata"].get("objective") else ""
+                summary = (
+                    result["metadata"].get("objective", [""])[0]
+                    if result["metadata"].get("objective")
+                    else ""
+                )
             except (KeyError, IndexError):
                 summary = ""
 

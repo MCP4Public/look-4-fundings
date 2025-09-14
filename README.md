@@ -1,12 +1,14 @@
 # Look 4 Fundings - EU Funding Crawler MCP Server
 
-A Model Context Protocol (MCP) server that provides tools for searching EU funding opportunities through the official EU Funding & Tenders Portal API. This server is designed to work with Le Chat and other MCP-compatible clients.
+A Model Context Protocol (MCP) server that provides tools for searching EU funding opportunities and managing company funding data through the Look 4 Fundings web application. This server integrates with both the official EU Funding & Tenders Portal API and the Look 4 Fundings web platform.
 
 ## Features
 
 - **EU Funding Search**: Search for active EU funding opportunities by keyword
+- **Company Profile Management**: Retrieve company information for better funding recommendations
+- **Grant Management**: Add funding opportunities to the web application with custom affinity scores
 - **Comprehensive Data**: Get detailed information including title, summary, deadline, budget, and status
-- **Official API Integration**: Uses the official EU Funding & Tenders Portal REST API
+- **Dual API Integration**: Uses both the official EU Funding & Tenders Portal API and the Look 4 Fundings web API
 - **Le Chat Integration**: Compatible with Le Chat's MCP connector system
 
 ## Prerequisites
@@ -80,9 +82,10 @@ Searches for EU funding opportunities by keyword and returns detailed funding in
   - `title` (str): Title of the funding opportunity
   - `url` (str): Direct link to the funding page
   - `summary` (str): Summary/objective of the funding
-  - `deadline` (str): Application deadline
+  - `deadline` (date): Application deadline
   - `status` (str): Current status of the funding
   - `budget` (str): Budget information with currency
+  - `company_affinity` (float): Company affinity score (0-100)
 
 **Example:**
 ```
@@ -92,6 +95,44 @@ Output: List of 10 EU funding opportunities related to AI
 
 **Note:** Returns an empty list if no results are found or if an error occurs during the API request.
 
+### `get_company_profile`
+Retrieves the company profile information from the Look 4 Fundings web application.
+
+**Parameters:**
+- None
+
+**Returns:**
+- `Optional[MyCompany]`: The company profile object containing:
+  - `name` (str): Name of the company
+  - `url` (str): Direct link to the company's website
+  - `scope` (str): Description of the company's scope/activities
+
+**Example:**
+```
+Input: None
+Output: MyCompany(name="EcoTech Solutions", url="https://ecotechsolutions.com", scope="AI-powered environmental solutions")
+```
+
+**Note:** Returns `None` if no company profile is set or if there's an error fetching the data.
+
+### `add_grant_with_affinity`
+Adds a new grant to the Look 4 Fundings web application with a specified affinity score.
+
+**Parameters:**
+- `funding` (PublicFunding): The funding opportunity object to add
+- `affinity_score` (float): The company affinity score (0-100) for this funding opportunity
+
+**Returns:**
+- `Optional[PublicFunding]`: The created funding object with updated affinity score, or `None` if there's an error
+
+**Example:**
+```
+Input: funding=PublicFunding(...), affinity_score=85.5
+Output: PublicFunding object with company_affinity=85.5
+```
+
+**Note:** The function validates that the affinity score is between 0 and 100. The funding object is automatically updated with the new affinity score before being posted to the web application.
+
 ## Development
 
 This project uses:
@@ -100,7 +141,9 @@ This project uses:
 - **Python 3.12+**: For modern Python features
 - **Pydantic**: For data validation and serialization
 - **Requests**: For HTTP API calls to the EU Funding Portal
+- **HTTPX**: For HTTP API calls to the Look 4 Fundings web application
 - **EU Funding & Tenders Portal API**: Official REST API for funding data
+- **Look 4 Fundings Web API**: Custom web application API for grant management
 
 ## Project Structure
 
@@ -116,6 +159,9 @@ This project uses:
 - **Le Chat connection**: Ensure the MCP endpoint URL includes `/mcp` at the end
 - **API errors**: The crawler uses the official EU API which may have rate limits or temporary unavailability
 - **No results found**: Try different keywords or check if the API is responding correctly
+- **Date serialization errors**: The `add_grant_with_affinity` tool automatically handles date conversion for JSON serialization
+- **Web API connection**: Ensure the Look 4 Fundings web application is accessible at `https://web-production-08f4.up.railway.app/`
+- **Affinity score validation**: The affinity score must be between 0 and 100, inclusive
 
 ## License
 
