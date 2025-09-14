@@ -176,6 +176,64 @@ def update_company_scope(new_scope: str) -> Optional[MyCompany]:
 
 
 @mcp.tool()
+def generate_company_report(report_content: str = "") -> Optional[dict]:
+    """
+    Generate a professional PDF report for the company.
+
+    This tool creates reports that companies can download and attach to their
+    funding applications. If no content is provided, it generates a report from
+    the company profile and won grants data. If content is provided, it creates
+    a custom report from that text.
+
+    Args:
+        report_content (str): Optional custom report content. If empty, generates
+                             report from website data (company profile + won grants)
+
+    Returns:
+        Optional[dict]: Report generation result with download URL and details, or None if error
+    """
+    try:
+        # Determine report type based on content
+        if report_content.strip():
+            report_type = "api"
+            content = report_content
+        else:
+            report_type = "generated"
+            content = ""
+
+        # Generate report via API
+        report_data = {"type": report_type, "content": content}
+
+        response = httpx.post(
+            "https://web-production-08f4.up.railway.app/api/reports/generate",
+            json=report_data,
+            headers={"Content-Type": "application/json"},
+        )
+
+        if response.status_code == 200:
+            report_result = response.json()
+            print(f"DEBUG: Report generated successfully: {report_result['name']}")
+            return {
+                "success": True,
+                "report_name": report_result["name"],
+                "report_type": report_result["type"],
+                "file_size": report_result["file_size"],
+                "generated_at": report_result["generated_at"],
+                "download_url": f"https://web-production-08f4.up.railway.app/api/reports/{report_result['id']}/download",
+                "message": f"Report '{report_result['name']}' generated successfully. You can download it from the Reports page.",
+            }
+        else:
+            print(
+                f"DEBUG: Report generation failed: {response.status_code} - {response.text}"
+            )
+            return None
+
+    except Exception as e:
+        print(f"Error generating company report: {e}")
+        return None
+
+
+@mcp.tool()
 def add_grant_with_affinity(
     funding: PublicFunding, affinity_score: float
 ) -> Optional[PublicFunding]:

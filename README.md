@@ -7,6 +7,8 @@ A Model Context Protocol (MCP) server that provides tools for searching EU fundi
 - **EU Funding Search**: Search for active EU funding opportunities by keyword
 - **Company Profile Management**: Retrieve company information for better funding recommendations
 - **Grant Management**: Add funding opportunities to the web application with custom affinity scores
+- **Professional Reports**: Generate PDF reports from company data and won grants
+- **Report Generation**: Create both generated reports (from website data) and API reports (from custom content)
 - **Comprehensive Data**: Get detailed information including title, summary, deadline, budget, and status
 - **Dual API Integration**: Uses both the official EU Funding & Tenders Portal API and the Look 4 Fundings web API
 - **Le Chat Integration**: Compatible with Le Chat's MCP connector system
@@ -151,6 +153,30 @@ Output: List of all grants with their current won status
 
 **Note:** Returns an empty list if no grants are found or if there's an error. The function automatically converts date strings back to date objects for proper data handling.
 
+### `generate_company_report`
+Generates a professional PDF report for the company using profile and grants data.
+
+**Parameters:**
+- `report_content` (str): Optional custom report content. If empty, generates report from website data (company profile + won grants)
+
+**Returns:**
+- `Optional[dict]`: Report generation result with download URL and details, or `None` if error
+
+**Report Types:**
+- **Generated Reports**: Automatically created from company profile and won grants data
+- **API Reports**: Created from custom LLM-generated content
+
+**Example:**
+```
+Input: report_content=""
+Output: {"success": True, "report_name": "Generated Report", "download_url": "https://...", "message": "Report generated successfully"}
+
+Input: report_content="Our company has shown strong performance in clean technology grants..."
+Output: {"success": True, "report_name": "API Report", "download_url": "https://...", "message": "Report generated successfully"}
+```
+
+**Note:** The tool automatically determines the report type based on whether content is provided. Generated reports include company information, grant statistics, and won grants details. API reports use the provided custom content.
+
 ## Development
 
 This project uses:
@@ -160,8 +186,9 @@ This project uses:
 - **Pydantic**: For data validation and serialization
 - **Requests**: For HTTP API calls to the EU Funding Portal
 - **HTTPX**: For HTTP API calls to the Look 4 Fundings web application
+- **ReportLab**: For PDF report generation
 - **EU Funding & Tenders Portal API**: Official REST API for funding data
-- **Look 4 Fundings Web API**: Custom web application API for grant management
+- **Look 4 Fundings Web API**: Custom web application API for grant management and reports
 
 ## Project Structure
 
@@ -180,6 +207,8 @@ This project uses:
 - **Date serialization errors**: The `add_grant_with_affinity` tool automatically handles date conversion for JSON serialization
 - **Web API connection**: Ensure the Look 4 Fundings web application is accessible at `https://web-production-08f4.up.railway.app/`
 - **Affinity score validation**: The affinity score must be between 0 and 100, inclusive
+- **Report generation errors**: Ensure the web application has ReportLab installed and the reports API is accessible
+- **PDF download issues**: Reports are generated server-side and downloaded via the web application's download endpoint
 
 ## License
 
