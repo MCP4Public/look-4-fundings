@@ -8,5 +8,6 @@ dependencies = [
     "mcp[cli]>=1.14.0",
     "ruff>=0.13.0",
     "requests>=2.31.0",
-    "httpx>=0.25.0"
+    "httpx>=0.25.0",
+    "weave>=0.52.7",
 ]

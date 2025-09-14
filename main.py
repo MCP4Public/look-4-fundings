@@ -3,6 +3,9 @@ from crawler import EUFundingCrawler
 from typing import List, Optional
 from type import PublicFunding, MyCompany
 import httpx
+import weave 
+import wandb
+import os
 
 # Create an MCP server
 mcp = FastMCP(
@@ -13,10 +16,15 @@ mcp = FastMCP(
     debug=True,
 )
 
+import os, wandb
+wandb.login(key=os.environ["WANDB_API_KEY"])  
+wandb.init(project="look-4-funding", entity="alexandros-popov-junior-ai")
+weave_client = weave.init("look-4-funding")  # 🐝 Your W&B project name
+
 # Initialize the crawler
 crawler = EUFundingCrawler()
 
-
+@weave.op()
 @mcp.tool()
 def search_eu_fundings(keyword="AI", page_size=20) -> List[PublicFunding]:
     """
@@ -38,7 +46,7 @@ def search_eu_fundings(keyword="AI", page_size=20) -> List[PublicFunding]:
         print(f"Error: {e}")
         return []
 
-
+@weave.op()
 @mcp.tool()
 def get_company_profile() -> Optional[MyCompany]:
     """
@@ -68,7 +76,7 @@ def get_company_profile() -> Optional[MyCompany]:
         print(f"Error fetching company profile: {e}")
         return None
 
-
+@weave.op()
 @mcp.tool()
 def get_grants() -> List[PublicFunding]:
     """
@@ -117,7 +125,7 @@ def get_grants() -> List[PublicFunding]:
         print(f"Error retrieving grants: {e}")
         return []
 
-
+@weave.op()
 @mcp.tool()
 def update_company_scope(new_scope: str) -> Optional[MyCompany]:
     """
@@ -174,7 +182,7 @@ def update_company_scope(new_scope: str) -> Optional[MyCompany]:
         print(f"Error updating company scope: {e}")
         return None
 
-
+@weave.op()
 @mcp.tool()
 def generate_company_report(report_content: str = "") -> Optional[dict]:
     """
@@ -232,7 +240,7 @@ def generate_company_report(report_content: str = "") -> Optional[dict]:
         print(f"Error generating company report: {e}")
         return None
 
-
+@weave.op()
 @mcp.tool()
 def add_grant_with_affinity(
     funding: PublicFunding, affinity_score: float
